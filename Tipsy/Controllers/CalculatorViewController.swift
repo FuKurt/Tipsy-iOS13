@@ -15,6 +15,7 @@ class CalculatorViewController: UIViewController {
     @IBOutlet weak var tenPctButton: UIButton!
     @IBOutlet weak var twentyPctButton: UIButton!
     @IBOutlet weak var splitNumberLabel: UILabel!
+
     var tip = 0.1
     var numberOfPeople = 2
     
@@ -42,10 +43,17 @@ class CalculatorViewController: UIViewController {
     }
     
     func calculationResult() -> String{
-        var bill = Double(billTextFilled.text ?? "0.00")
-        bill! += (bill! * tip)
-        let sumForEach = String(format: "%.2f", bill! / Double(numberOfPeople))
-        return sumForEach
+    
+        var billTotal = 0.00
+        let bill = billTextFilled.text ?? "0.00"
+        if bill != ""{
+            billTotal = Double(bill)!
+            billTotal += (billTotal * tip)
+            let sumForEach = String(format: "%.2f", billTotal / Double(numberOfPeople))
+            return sumForEach
+        }else{
+            return "0.00"
+        }
     }
     
     @IBAction func stepperValueChanged(_ sender: UIStepper) {
@@ -53,9 +61,17 @@ class CalculatorViewController: UIViewController {
         numberOfPeople = Int(sender.value)
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "resultPageSegue"{
+            let destinationVC = segue.destination as! ResultViewController
+            destinationVC.result = calculationResult()
+            destinationVC.split = numberOfPeople
+            destinationVC.tip = Int(tip*100)
+        }
+    }
+    
     @IBAction func calculatePressed(_ sender: UIButton) {
-        let paymentForEach = calculationResult()
-        print(paymentForEach)
+        self.performSegue(withIdentifier: "resultPageSegue", sender: self)
     }
     
 }
